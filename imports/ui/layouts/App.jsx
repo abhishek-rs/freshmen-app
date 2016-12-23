@@ -10,8 +10,9 @@ import Loading from '../components/Loading.jsx';
 import Profiles from '../components/Profiles.jsx';
 import { Link } from 'react-router';
 import TutorSidebar from '../components/TutorSidebar.jsx';
-
+import StudentSidebar from '../components/StudentSidebar.jsx';
 const CONNECTION_ISSUE_TIMEOUT = 5000;
+
 
 export default class App extends React.Component {
   constructor(props) {
@@ -23,6 +24,8 @@ export default class App extends React.Component {
     this.toggleMenu = this.toggleMenu.bind(this);
     this.logout = this.logout.bind(this);
   }
+
+
 
   componentDidMount() {
     setTimeout(() => {
@@ -127,8 +130,12 @@ export default class App extends React.Component {
 
         </div>
         <div id="right-sidebar">
-          {user && user.role === 'tutor'
+          {user && (user.role === 'tutor')
             ? <TutorSidebar/>
+            : ''
+          }
+          {user && user.role === 'student'
+            ? <StudentSidebar/>
             : ''
           }
         </div>
