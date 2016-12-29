@@ -1,35 +1,27 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Factory } from 'meteor/factory';
 import faker from 'faker';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 
-class PostsCollection extends Mongo.Collection{
+class PostsCollection extends Mongo.Collection {
   insert(doc, callback) {
     const ourDoc = doc;
     ourDoc.createdAt = ourDoc.createdAt || new Date();
+    console.log('doc', ourDoc);
     const result = super.insert(ourDoc, callback);
-    return result;
-  }
-  update(selector, modifier) {
-    const result = super.update(selector, modifier);
-    return result;
-  }
-  remove(selector) {
-    const posts = this.find(selector).fetch();
-    const result = super.remove(selector);
     return result;
   }
 }
 
 export const Posts = new PostsCollection('Posts');
-/*
+
 Posts.deny({
   insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  // update() { return true; },
+  // remove() { return true; },
 });
-*/
 
 EventSchema = new SimpleSchema({
   location: {
@@ -39,38 +31,51 @@ EventSchema = new SimpleSchema({
   time: {
     type: Date
   },
-  going: [{
+  confirmations: {
+    type: [Object],
+    defaultValue: []
+  },
+  "confirmations.$.user": {
     type: String,
     regEx: SimpleSchema.RegEx.Id
-  }],
-  notGoing: [{
+  },
+  "confirmations.$.status": {
     type: String,
-    regEx: SimpleSchema.RegEx.Id
-  }],
-  maybe: [{
-    type: String,
-    regEx: SimpleSchema.RegEx.Id
-  }],
+    allowedValues: ['going', 'notGoing', 'maybe']
+  }
 });
 
 TaskSchema = new SimpleSchema({
-  task: [{
-    type: String,
+  todos: {
+    type: [Object],
     max: 300
-  }],
-  assignees: [{
-    user: {
-      type: String,
-      regEx: SimpleSchema.RegEx.Id
-    },
-    status: {
-      type: String,
-      allowedValues: ['ongoing', 'completed']
-    }
-  }]
+  },
+  "todos.$._id": {
+    type: String
+  },
+  "todos.$.text": {
+    type: String
+  },
+  assignees: {
+    type: [Object],
+    maxCount: 20,
+    defaultValue: []
+  },
+  "assignees.$.user": {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id
+  },
+  "assignees.$.status": {
+    type: String,
+    allowedValues: ['ongoing', 'completed']
+  }
 });
 
 CommentSchema = new SimpleSchema({
+  _id: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id
+  },
   content: {
     type: String,
     max: 1000
@@ -86,16 +91,26 @@ CommentSchema = new SimpleSchema({
 });
 
 Posts.schema = new SimpleSchema({
+  type: {
+    type: String,
+    allowedValues: ['simple', 'event', 'task']
+  },
   text: {
     type: String,
     max: 1000,
     optional: true
   },
   event: {
-    type: EventSchema
+    type: EventSchema,
+    optional: true
   },
   task: {
-    type: TaskSchema
+    type: TaskSchema,
+    optional: true
+  },
+  comments: {
+    type: [CommentSchema],
+    defaultValue: []
   },
   group: {
     type: String,
@@ -114,15 +129,18 @@ Posts.schema = new SimpleSchema({
   },
 });
 
+
 Posts.attachSchema(Posts.schema);
 
 Posts.publicFields = {
+  type: 1,
   text: 1,
   event: 1,
   task: 1,
+  comments: 1,
   group: 1,
   creator: 1,
-  createdAt: 1,
+  createdAt: 1
 };
 
 Factory.define('post', Posts, {});
@@ -132,6 +150,10 @@ Posts.helpers({
     return Posts.find({});
   },
   editableBy(userId) {
-    return this.editableBy(userId);
+    if (!this.creator) {
+      return true;
+    }
+
+    return this.creator === userId;
   },
 });

@@ -1,0 +1,43 @@
+.comment{
+  margin-top: 3px;
+  margin-bottom: 3px;
+  background-color: #c7c9cc;
+  padding:5px;
+  position: relative;
+
+  .comment-content{
+    margin-left: 5px;
+    font-size: 15px;
+    color: black;
+    display: inline;
+
+    .commenter {
+      color: #532c5f;
+      float: left;
+    }
+    .commenter a {
+      color: #532c5f;
+      font-weight: bolder;
+    }
+    .comment-text {
+      left: 5px;
+      position: relative;
+      font-weight: bolder;
+    }
+  }
+
+  .delete-btn {
+    font-weight: bold;
+    padding: 1px;
+    cursor: pointer;
+    position: absolute;
+    right: 5px;
+    display: none;
+    font-size: 0.8em;
+  }
+
+  &:hover .delete-btn {
+    display: block;
+  }
+
+}

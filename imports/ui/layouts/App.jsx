@@ -9,9 +9,12 @@ import ConnectionNotification from '../components/ConnectionNotification.jsx';
 import Loading from '../components/Loading.jsx';
 import Profiles from '../components/Profiles.jsx';
 import { Link } from 'react-router';
+import { Modal } from 'react-bootstrap';
 import TutorSidebar from '../components/TutorSidebar.jsx';
 import StudentSidebar from '../components/StudentSidebar.jsx';
 const CONNECTION_ISSUE_TIMEOUT = 5000;
+import AddGroupPage from '../pages/coordinator/AddGroupPage.jsx';
+import AddStudentPage from '../pages/coordinator/AddStudentPage.jsx';
 
 
 export default class App extends React.Component {
@@ -23,9 +26,29 @@ export default class App extends React.Component {
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.logout = this.logout.bind(this);
+    this.state.showAddStudents = false;
+    this.state.showAddGroups = false;
+    this.openAddStudents = this.openAddStudents.bind(this);
+    this.closeAddStudents = this.closeAddStudents.bind(this);
+    this.openAddGroups = this.openAddGroups.bind(this);
+    this.closeAddGroups = this.closeAddGroups.bind(this);
   }
 
+  closeAddStudents() {
+    this.setState({ showAddStudents: false });
+  }
 
+  openAddStudents() {
+    this.setState({ showAddStudents: true });
+  }
+
+  closeAddGroups() {
+    this.setState({ showAddGroups: false });
+  }
+
+  openAddGroups() {
+    this.setState({ showAddGroups: true });
+  }
 
   componentDidMount() {
     setTimeout(() => {
@@ -37,9 +60,9 @@ export default class App extends React.Component {
   componentWillReceiveProps({ loading, children }) {
     // redirect / to a list once lists are ready
     /*if (!loading && !children) {
-      const list = Lists.findOne();
-      this.context.router.replace(`/lists/${list._id}`);
-    }*/
+     const list = Lists.findOne();
+     this.context.router.replace(`/lists/${list._id}`);
+     }*/
     if (!loading && !children) {
       if (Meteor.user().role === 'tutor') {
         this.context.router.replace('/tutor');
@@ -72,6 +95,9 @@ export default class App extends React.Component {
       menuOpen,
       children,
       location,
+      users,
+      groups,
+      tasks
     } = this.props;
 
     // eslint-disable-next-line react/jsx-no-bind
@@ -80,13 +106,14 @@ export default class App extends React.Component {
     // clone route components with keys so that they can
     // have transitions
     const clonedChildren = children && React.cloneElement(children, {
-      key: location.pathname,
-    });
+        key: location.pathname,
+      });
 
     const coordinatorMenu = (
       <li>
-        <Link to="/coordinator/add-student">Add students</Link>
-        <Link to="/coordinator/add-group">Add groups</Link>
+        {/*<Link to="/add-student">Add students</Link>*/}
+        <Link onClick={this.openAddStudents}>Add students</Link>
+        <Link onClick={this.openAddGroups}>Add groups</Link>
       </li>
     );
 
@@ -94,55 +121,78 @@ export default class App extends React.Component {
       <div>
         <div className="navibar">
           <div className="container-fluid">
-              <ul className="navibar-nav">
-                <li><a className="site-title" href="/">Freshmen Guide</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">Contact US</a></li>
-                {!loading && user.role === 'coordinator' ? coordinatorMenu : ''}
+            <ul className="navibar-nav">
+              <li><a className="site-title" href="/">Freshmen Guide</a></li>
+              <li><Link to="/about">About</Link></li>
+              <li><Link to="/faq">FAQ</Link></li>
+              <li><Link to="/contact-us">Contact US</Link></li>
+              {!loading && user.role === 'coordinator' ? coordinatorMenu : ''}
 
-              </ul>
+            </ul>
           </div>
         </div>
 
 
-      <div id="container" className={menuOpen ? 'menu-open' : ''}>
-        <section id="menu">
-          {/*<LanguageToggle />*/}
-          <UserMenu user={user} logout={this.logout} />
-          <Profiles/>
-          {/*<ListList lists={lists}/>*/}
-        </section>
-        {showConnectionIssue && !connected
-          ? <ConnectionNotification />
-          : null}
-        <div className="content-overlay" onClick={closeMenu} />
-        <div id="content-container">
-          <ReactCSSTransitionGroup
-            transitionName="fade"
-            transitionEnterTimeout={200}
-            transitionLeaveTimeout={200}
-          >
-            {loading
-              ? <Loading key="loading" />
-              : clonedChildren}
-          </ReactCSSTransitionGroup>
+        <div id="container" className={menuOpen ? 'menu-open' : ''}>
+          <section id="menu">
+            {/*<LanguageToggle />*/}
+            <UserMenu user={user} logout={this.logout} />
+            {!loading && <Profiles user={user}/>}
+            {user && user.role !== 'coordinator' && <ListList lists={lists}/>}
+          </section>
+          {showConnectionIssue && !connected
+            ? <ConnectionNotification />
+            : null}
+          <div className="content-overlay" onClick={closeMenu} />
+          <div id="content-container">
+            <ReactCSSTransitionGroup
+              transitionName="fade"
+              transitionEnterTimeout={200}
+              transitionLeaveTimeout={200}
+            >
+              {loading
+                ? <Loading key="loading" />
+                : clonedChildren}
 
-        </div>
-        <div id="right-sidebar">
-          {user && (user.role === 'tutor')
-            ? <TutorSidebar/>
-            : ''
-          }
-          {user && user.role === 'student'
-            ? <StudentSidebar/>
-            : ''
-          }
+            </ReactCSSTransitionGroup>
+
+          </div>
+          <div id="right-sidebar">
+            {user && (user.role === 'tutor' && !loading)
+              ? <TutorSidebar user={user} users={users} group={user.group} tasks={tasks}/>
+              : ''
+            }
+            {user && user.role === 'student' && !loading
+              ? <StudentSidebar user={user} group={user.group} users={users} groups={groups}/>
+              : ''
+            }
+          </div>
+
+          <Modal show={this.state.showAddStudents} onHide={this.closeAddStudents}>
+            <Modal.Header closeButton>
+              <Modal.Title>Add Students</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <AddStudentPage groups={groups}/>
+            </Modal.Body>
+            <Modal.Footer>
+              <button className="btn btn-danger" onClick={this.closeAddStudents}>Cancel</button>
+            </Modal.Footer>
+          </Modal>
+
+          <Modal show={this.state.showAddGroups} onHide={this.closeAddGroups}>
+            <Modal.Header closeButton>
+              <Modal.Title>Add Groups</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <AddGroupPage/>
+            </Modal.Body>
+            <Modal.Footer>
+              <button className="btn btn-danger" onClick={this.closeAddGroups}>Cancel</button>
+            </Modal.Footer>
+          </Modal>
         </div>
       </div>
-
-      </div>
-
     );
   }
 }
@@ -156,6 +206,8 @@ App.propTypes = {
   children: React.PropTypes.element, // matched child route component
   location: React.PropTypes.object,  // current router location
   params: React.PropTypes.object,    // parameters of the current route
+  groups: React.PropTypes.array,
+  posts: React.PropTypes.array
 };
 
 App.contextTypes = {

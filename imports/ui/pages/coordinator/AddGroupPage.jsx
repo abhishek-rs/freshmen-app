@@ -18,7 +18,6 @@ export default class AddGroupPage extends BaseComponent {
     const groupName = this.newGroup;
 
     if (groupName.value.trim()) {
-      console.log(insert.call);
       insert.call({
         name: groupName.value
       }, (err) => {
@@ -55,7 +54,7 @@ export default class AddGroupPage extends BaseComponent {
             placeholder="Enter group name"
           />
 
-        <button type="submit" className="btn-primary">
+        <button type="submit" className="btn btn-primary">
           Add
         </button>
         </div>
