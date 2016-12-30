@@ -11,9 +11,20 @@ const StudentPageContainer = createContainer(() => {
     posts: Posts.find({
       $or: [
         {group: {$exists: false}},
-        {group: Meteor.user().group}
+        {
+          $or: [
+            {
+              group: Meteor.user().group,
+              type: { $in: ['simple', 'event']}
+            },
+            {
+              type: 'task',
+              'task.assignees.user': Meteor.userId()
+            }
+          ]
+        }
       ]
-    }).fetch()
+    }, { sort: { createdAt: -1}}).fetch()
   };
 }, StudentDashboard);
 

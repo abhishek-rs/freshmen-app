@@ -15,7 +15,7 @@ export default class CommentSection extends BaseComponent {
     if (!comments || !comments.length) {
       commentList = '';
     } else {
-      commentList = comments.map(comment => (
+      commentList = comments.reverse().map(comment => (
         <Comment key={comment._id}
                  comment={comment}
                  post={this.props.post}/>
@@ -25,7 +25,11 @@ export default class CommentSection extends BaseComponent {
     return (
       <div className="comment-section">
         <CommentBox post={this.props.post}/>
-        {commentList}
+        {commentList && (
+          <div className="comment-list">
+            {commentList}
+          </div>
+        )}
       </div>
     )
   }

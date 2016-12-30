@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import BaseComponent from '../BaseComponent.jsx';
@@ -6,6 +7,7 @@ import { displayError } from '../../helpers/errors.js';
 import Event from './Event.jsx';
 import Task from './Task.jsx';
 import { Modal, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import TimeAgo from 'react-timeago';
 
 import {
   remove
@@ -44,7 +46,6 @@ export default class Post extends BaseComponent {
     //TODO: improve populating creator later
     //read more: collection-helpers and publishComposite
     const creator = Meteor.users.findOne(post.creator);
-    const createdAt = new Date(post.createdAt);
     const creatorProfile = "/profile/" + creator._id;
     const deletePostBtn = (
       <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Delete</Tooltip>}>
@@ -52,16 +53,30 @@ export default class Post extends BaseComponent {
       </OverlayTrigger>
     );
 
+    let postTime;
+    if (moment().diff(post.createdAt, 'days') > 2) {
+      postTime = (
+        <span>{moment(post.createdAt).format('DD/MM/YYYY at HH:mm A')}</span>
+      )
+    } else {
+      postTime = (
+        <TimeAgo date={post.createdAt} minPeriod={10}/>
+      )
+    }
+
     return (
       <div className="posts">
-        <div className="post-header layout">
+        <div className="post-header layout-align--middle">
           <div className="avatar flex-none">
             <a href={creatorProfile}><img className="img-responsive img-circle" src={creator.profile.photo}/></a>
           </div>
-          <a href={creatorProfile}><div className="user-info flex">
-            {creator.profile.name}
-            <p id="date">on {createdAt.toUTCString()}</p>
-          </div></a>
+          <div className="user-info flex">
+            <a href={creatorProfile}>
+              {creator.profile.name}
+            </a>
+            {/*<div id="date"><TimeAgo date={createdAt}/></div>*/}
+            <div id="date">{postTime}</div>
+          </div>
 
           { Meteor.userId() === post.creator
             ? deletePostBtn
@@ -76,7 +91,6 @@ export default class Post extends BaseComponent {
           {post.type === 'event' && <Event post={post}/>}
           {post.type === 'task' && <Task post={post} />}
         </div>
-        <hr></hr>
         <div className="post-footer">
           <CommentSection post={this.props.post}/>
         </div>

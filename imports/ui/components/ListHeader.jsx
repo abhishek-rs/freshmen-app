@@ -5,6 +5,7 @@ import i18n from 'meteor/universe:i18n';
 import BaseComponent from './BaseComponent.jsx';
 import MobileMenu from './MobileMenu.jsx';
 import { displayError } from '../helpers/errors.js';
+import { Modal, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import {
   updateName,
@@ -20,7 +21,10 @@ import {
 export default class ListHeader extends BaseComponent {
   constructor(props) {
     super(props);
-    this.state = Object.assign(this.state, { editing: false });
+    this.state = Object.assign(this.state, {
+      editing: false,
+      showDeleteModal: false
+    });
     this.onListFormSubmit = this.onListFormSubmit.bind(this);
     this.onListInputKeyUp = this.onListInputKeyUp.bind(this);
     this.onListInputBlur = this.onListInputBlur.bind(this);
@@ -32,6 +36,8 @@ export default class ListHeader extends BaseComponent {
     this.toggleListPrivacy = this.toggleListPrivacy.bind(this);
     this.createTodo = this.createTodo.bind(this);
     this.focusTodoInput = this.focusTodoInput.bind(this);
+    this.showDeleteModal = this.showDeleteModal.bind(this);
+    this.hideDeleteModal = this.hideDeleteModal.bind(this);
   }
 
   onListFormSubmit(event) {
@@ -79,13 +85,9 @@ export default class ListHeader extends BaseComponent {
 
   deleteList() {
     const list = this.props.list;
-    const message =
-      `${i18n.__('components.listHeader.deleteConfirm')} ${list.name}?`;
 
-    if (confirm(message)) { // eslint-disable-line no-alert
-      remove.call({ listId: list._id }, displayError);
-      this.context.router.push('/');
-    }
+    remove.call({ listId: list._id }, displayError);
+    this.context.router.push('/');
   }
 
   toggleListPrivacy() {
@@ -113,11 +115,18 @@ export default class ListHeader extends BaseComponent {
     this.newTodoInput.focus();
   }
 
+  showDeleteModal() {
+    this.setState({showDeleteModal: true});
+  }
+
+  hideDeleteModal() {
+    this.setState({showDeleteModal: false});
+  }
+
   renderDefaultHeader() {
     const { list } = this.props;
     return (
       <div>
-        <MobileMenu />
         <h1 className="title-page" onClick={this.editList}>
           <span className="title-wrapper">{list.name}</span>
           <span className="count-list">{list.incompleteCount}</span>
@@ -148,22 +157,41 @@ export default class ListHeader extends BaseComponent {
           <div className="options-web">
             <a className="nav-item" onClick={this.toggleListPrivacy}>
               {list.userId
-                ? <span
-                  className="icon-lock"
-                  title={i18n.__('components.listHeader.makeListPublic')}
-                />
-                : <span
-                  className="icon-unlock"
-                  title={i18n.__('components.listHeader.makeListPrivate')}
-                />}
+                ? (
+                  <OverlayTrigger placement="bottom" overlay={<Tooltip id="add-task">Make this list public</Tooltip>}>
+                    <span className="icon-lock"/>
+                  </OverlayTrigger>
+                )
+                : (
+                <OverlayTrigger placement="bottom" overlay={<Tooltip id="add-task">Make this list private</Tooltip>}>
+                  <span className="icon-unlock"/>
+                </OverlayTrigger>
+                )}
             </a>
-            <a className="nav-item trash" onClick={this.deleteList}>
+            <a className="nav-item trash" onClick={this.showDeleteModal}>
               <span
                 className="icon-trash"
                 title={i18n.__('components.listHeader.deleteList')}
               />
             </a>
           </div>
+
+          <Modal
+            show={this.state.showDeleteModal}
+            onHide={this.hideDeleteModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>Delete list</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <p>Are you sure you want to delete this list? This action cannot be undone.</p>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button onClick={this.hideDeleteModal}>Cancel</Button>
+              <Button bsStyle="danger" onClick={this.deleteList}>Delete</Button>
+            </Modal.Footer>
+          </Modal>
         </div>
       </div>
     );

@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import BaseComponent from '../BaseComponent.jsx';
 import { displayError } from '../../helpers/errors.js';
 import { Modal, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import TimeAgo from 'react-timeago';
 
 import {
   removeComment
@@ -48,16 +49,17 @@ export default class Comment extends BaseComponent {
     );
 
     return (
-      <div className="comment layout-align--middle">
+      <div className="comment layout">
         <div className="avatar flex-none">
           <a href={creatorProfile}><img className="user-avatar square xs"
                src={creator.profile.photo}/></a>
         </div>
-        <div className="comment-content flex">
-          <div className="commenter">
-            <a href={creatorProfile}>{creator.profile.name}</a> said:
+        <div className="comment-content flex layout-align--middle">
+          <a className="commenter" href={creatorProfile}>{creator.profile.name}:</a>
+          <span className="comment-text">{comment.content}</span>
+          <div className="time">
+            <TimeAgo date={comment.created}/>
           </div>
-          <div className="comment-text">{comment.content}</div>
         </div>
 
         { Meteor.userId() === comment.creator

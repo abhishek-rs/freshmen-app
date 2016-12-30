@@ -9,9 +9,7 @@ class PostsCollection extends Mongo.Collection {
   insert(doc, callback) {
     const ourDoc = doc;
     ourDoc.createdAt = ourDoc.createdAt || new Date();
-    console.log('doc', ourDoc);
-    const result = super.insert(ourDoc, callback);
-    return result;
+    return super.insert(ourDoc, callback);
   }
 }
 
@@ -25,9 +23,25 @@ Posts.deny({
 
 EventSchema = new SimpleSchema({
   location: {
-    type: String,
-    max: 100
+    type: Object,
+    defaultValue: []
   },
+  "location.type":{
+    type: String,
+    allowedValues: ['address','latLong']
+  },
+  "location.lat":{
+    type: Number,
+    decimal: true
+  },
+  "location.long":{
+    type: Number,
+    decimal: true
+  },
+  "location.address":{
+    type: String
+  },
+
   time: {
     type: Date
   },
@@ -86,7 +100,7 @@ CommentSchema = new SimpleSchema({
   },
   created: {
     type: Date,
-    defaultValue: Date.now
+    defaultValue: new Date()
   }
 });
 
@@ -97,8 +111,7 @@ Posts.schema = new SimpleSchema({
   },
   text: {
     type: String,
-    max: 1000,
-    optional: true
+    max: 1000
   },
   event: {
     type: EventSchema,
@@ -124,7 +137,7 @@ Posts.schema = new SimpleSchema({
   },
   createdAt: {
     type: Date,
-    defaultValue: Date.now,
+    defaultValue: new Date(),
     denyUpdate: true,
   },
 });

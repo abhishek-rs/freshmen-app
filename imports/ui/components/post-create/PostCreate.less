@@ -26,6 +26,10 @@
     }
   }
 
+  .post-types {
+    margin-top: 10px;
+  }
+
   .custom-btn-success {
     background-color: #00b300;
   }
@@ -37,12 +41,24 @@
   .custom-btn-success, .custom-btn-primary, .custom-btn-danger{
     border-radius: 5px;
     padding: 10px;
-    font-size: 12px;
+    font-size: 15px;
     font-family: 'Ubuntu', serif;
-    margin: 5px;
+    margin-right: 5px;
+
+    .glyphicon {
+      display: inline;
+    }
   }
+
   .custom-btn-success {
     background-color: #00b300;
+  }
+
+  .add-btn {
+    color: #2cc5d2;
+    cursor: pointer;
+    margin: 10px 0;
+    display: inline-block;
   }
 
   .icon-close{
@@ -75,6 +91,35 @@
 
   }
 
+  .geosuggest__input{
+    margin-bottom: 0;
+
+  }
+
+  .geosuggest__suggests{
+    background-color: white;
+    color: black;
+    margin-top: 0;
+    padding: 10px;
+    padding-top: 0px;
+    font-family: 'Ubuntu', sans-serif;
+    z-index: 999;
+    margin-bottom:10px;
+    display: block;
+    position: relative;
+    top: -10px;
+    cursor: pointer;
+  }
+
+  .geosuggest__suggests--hidden{
+    display: none;
+  }
+
+  .geosuggest__suggestItem{
+    background-color: grey;
+    cursor:pointer;
+  }
+
   .assignee-list {
     .item {
       line-height: 30px;
@@ -86,5 +131,9 @@
 
   .rdt {
     color: #1f87c3;
+
+    table {
+      left: 0;
+    }
   }
 }
