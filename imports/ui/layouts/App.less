@@ -7,6 +7,7 @@ body {
   .position(absolute, 0, 0, 0, 0);
   background-color: @color-turquoise !important;
   color: white;
+//  overflow: auto;
 }
 
 .custom-modal{
@@ -17,11 +18,10 @@ body {
     background-color: @color-ancillary;
     position: fixed;
     top: 0;
-    height: 50px;
+    height: 45px;
     color: white;
     text-align: center;
-    font-size: 18px;
-    line-height: 25px;
+    font-size: 20px;
     z-index: 999;
     padding: 5px;
     width: 100%;
@@ -50,11 +50,17 @@ body {
     display: block;
     padding: 8px;
     color: white;
+    text-decoration: none;
+}
+
+.navibar div ul li a:hover {
+  color: @color-turquoise;
 }
 
 #container {
   .position(absolute, 0, 0, 0, 0);
-    top: 50px;
+    top: 45px;
+
   @media screen and (min-width: 60em) {
     left: @column;
     right: @column;
@@ -66,7 +72,7 @@ body {
   }
 
   // Hide anything offscreen
-  overflow: hidden;
+ overflow: hidden;
 }
 
 #menu {
@@ -81,6 +87,8 @@ body {
   transform: translate3d(0, 0, 0);
   opacity: 1;
   overflow: auto;
+  overflow-x: hidden;
+
 
   .dashboard {
     padding: 10px;
@@ -94,7 +102,7 @@ body {
   .content-scrollable {
     .position(absolute, 0, 0, 0, 0);
     transform: translate3d(0, 0, 0);
-    overflow-y: auto;
+   overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -129,6 +137,7 @@ body {
   .position(absolute, 0, 0, 0, auto);
   color: white;
   overflow: auto;
+  overflow-x: hidden;
 }
 
 // Transparent screen to prevent interactions on content when menu is open

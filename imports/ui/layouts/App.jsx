@@ -10,13 +10,14 @@ import Loading from '../components/Loading.jsx';
 import Profiles from '../components/Profiles.jsx';
 import { Link } from 'react-router';
 import { Modal } from 'react-bootstrap';
+
 import TutorSidebar from '../components/TutorSidebar.jsx';
 import StudentSidebar from '../components/StudentSidebar.jsx';
 const CONNECTION_ISSUE_TIMEOUT = 5000;
 import AddGroupPage from '../pages/coordinator/AddGroupPage.jsx';
 import AddStudentPage from '../pages/coordinator/AddStudentPage.jsx';
 import MobileMenu from '../components/MobileMenu.jsx';
-
+//import { ScrollArea } from 'react-scrollbar';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -34,7 +35,11 @@ export default class App extends React.Component {
     this.closeAddStudents = this.closeAddStudents.bind(this);
     this.openAddGroups = this.openAddGroups.bind(this);
     this.closeAddGroups = this.closeAddGroups.bind(this);
+//    this.handleScroll = this.handleScroll.bind(this);
   }
+
+
+
 
   closeAddStudents() {
     this.setState({ showAddStudents: false });
@@ -82,11 +87,40 @@ export default class App extends React.Component {
 
   logout() {
     Meteor.logout();
+    /**
+     * Init this session on AppPageContainer will cause problem because
+     * AppPageContainer listen to Session.set event (because it has props related to
+     * Session.get => whenever user click toggle menu button, it trigger Session.set on
+     * MobileMenu.jsx => trigger AppPageContainer.jsx => trigger init Session func there
+     * Put Session('menuOpen', false) on AppPageContainer to see what happen.
+     * */
+    Session.set('menuOpen', false);
+    Session.set('rightMenuOpen', false);
 
     //redirect to login page
     this.context.router.push('/login');
   }
 
+  /*handleScroll(){
+    var body = document.getElementById('container');
+    var rightBar = document.getElementById('right-sidebar');
+    var menu = document.getElementById('menu');
+    console.log("in scroll" , rightBar.clientHeight, menu.clientHeight);
+  if (body.scrollTop > rightBar.clientHeight - window.innerHeight ) {
+    rightBar.setAttribute("style","position: fixed");
+  }
+  else{
+    rightBar.setAttribute("style","position: absolute");
+  }
+   if (body.scrollTop > menu.clientHeight - window.innerHeight){
+    menu.setAttribute("style","position: fixed");
+  }
+  else{
+    menu.setAttribute("style","position: absolute");
+  }
+
+  }
+*/
   render() {
     const { showConnectionIssue } = this.state;
     const {
@@ -126,7 +160,7 @@ export default class App extends React.Component {
           <MobileMenu />
           <div className="container-fluid">
             <ul className="navibar-nav">
-              <li><a className="site-title" href="/">Freshmen Guide</a></li>
+              <li><img className="site-title" src="/favicon/favicon-32x32.png"/><a className="site-title" href="/">Freshmen Guide</a></li>
               <li><Link to="/about">About</Link></li>
               <li><Link to="/faq">FAQ</Link></li>
               <li><Link to="/contact-us">Contact US</Link></li>
@@ -148,7 +182,8 @@ export default class App extends React.Component {
             ? <ConnectionNotification />
             : null}
           <div className="content-overlay" onClick={closeMenu} />
-          <div id="content-container">
+
+            <div id="content-container">
             <ReactCSSTransitionGroup
               transitionName="fade"
               transitionEnterTimeout={200}
